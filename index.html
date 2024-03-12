@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cross-Border Payment Platform</title>
+  <style>
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px;
+    }
+
+    .payment-platform {
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+    }
+
+    .title {
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 30px;
+      color: #333333;
+      text-align: center;
+    }
+
+    .payment-form {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .form-group {
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #666666;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #cccccc;
+      border-radius: 6px;
+      font-size: 18px;
+    }
+
+    .currency-symbol {
+      position: absolute;
+      top: 50%;
+      right: 14px;
+      transform: translateY(-50%);
+      color: #999999;
+      font-size: 18px;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      font-size: 18px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn-convert {
+      background-color: #007bff;
+      color: #ffffff;
+      border: none;
+    }
+
+    .conversion-details {
+      margin-bottom: 40px;
+    }
+
+    .exchange-rate,
+    .invoice-amount,
+    .usd-amount,
+    .transaction-fee,
+    .total-payment,
+    .delivery-estimate {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      padding: 15px;
+      background-color: #f8f8f8;
+      border-radius: 6px;
+    }
+
+    .label {
+      font-weight: bold;
+      color: #666666;
+    }
+
+    .value {
+      color: #333333;
+      font-weight: bold;
+    }
+
+    .recipient-details {
+      margin-bottom: 40px;
+    }
+
+    .recipient-details h3 {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #333333;
+    }
+
+    .btn-pay {
+      background-color: #28a745;
+      color: #ffffff;
+      border: none;
+      width: 100%;
+      font-size: 20px;
+      padding: 16px;
+    }
+
+    .animation-container {
+      width: 100%;
+      height: 200px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="payment-platform">
+      <h1 class="title">Cross-Border Payment Platform</h1>
+      <div class="payment-form">
+        <div class="form-group">
+          <label for="invoiceAmount">Invoice Amount</label>
+          <div class="input-wrapper">
+            <input type="number" id="invoiceAmount" class="form-control" placeholder="Enter amount" required>
+            <span class="currency-symbol">$</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="targetCurrency">Target Currency</label>
+          <select id="targetCurrency" class="form-control" required>
+            <option value="EUR">EUR</option>
+            <option value="GBP">GBP</option>
+            <option value="CAD">CAD</option>
+            <option value="AUD">AUD</option>
+            <option value="SGD">SGD</option>
+            <option value="MXN">MXN</option>
+            <option value="BRL">BRL</option>
+            <option value="PHP">PHP</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="vendorSelect">Select Vendor</label>
+          <select id="vendorSelect" class="form-control" required>
+            <option value="">Choose a vendor</option>
+            <option value="vendor1">Vendor 1</option>
+            <option value="vendor2">Vendor 2</option>
+            <option value="vendor3">Vendor 3</option>
+          </select>
+        </div>
+        <button type="button" class="btn btn-convert" id="convertBtn">Convert</button>
+      </div>
+      <div class="vendor-details" id="vendorDetails" style="display: none;">
+        <h3>Vendor Details</h3>
+        <p><strong>Name:</strong> <span id="vendorName"></span></p>
+        <p><strong>Email:</strong> <span id="vendorEmail"></span></p>
+        <p><strong>Bank:</strong> <span id="vendorBank"></span></p>
+        <p><strong>Account Number:</strong> <span id="vendorAccount"></span></p>
+      </div>
+      <div class="conversion-details" id="conversionDetails" style="display: none;">
+        <div class="exchange-rate">
+          <span class="label">Exchange Rate:</span>
+          <span class="value" id="exchangeRate"></span>
+        </div>
+        <div class="invoice-amount">
+          <span class="label">Invoice Amount:</span>
+          <span class="value" id="invoiceAmountDisplay"></span>
+        </div>
+        <div class="usd-amount">
+          <span class="label">USD Amount:</span>
+          <span class="value" id="usdAmount"></span>
+        </div>
+        <div class="transaction-fee">
+          <span class="label">Transaction Fee (USD):</span>
+          <span class="value" id="transactionFee"></span>
+        </div>
+        <div class="total-payment">
+          <span class="label">Total Payment (USD):</span>
+          <span class="value" id="totalPayment"></span>
+        </div>
+        <div class="delivery-estimate">
+          <span class="label">Estimated Delivery:</span>
+          <span class="value" id="deliveryEstimate">1-2 business days</span>
+        </div>
+      </div>
+      <div class="animation-container" id="animationContainer"></div>
+      <button class="btn btn-pay" id="confirmPayment" style="display: none;">Confirm and Pay</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.7.14/lottie.min.js"></script>
+  <script>
+    // Sample vendor data
+    const vendors = {
+      vendor1: {
+        name: "Vendor 1",
+        email: "vendor1@example.com",
+        bank: "Bank A",
+        account: "1234567890"
+      },
+      vendor2: {
+        name: "Vendor 2",
+        email: "vendor2@example.com",
+        bank: "Bank B",
+        account: "0987654321"
+      },
+      vendor3: {
+        name: "Vendor 3",
+        email: "vendor3@example.com",
+        bank: "Bank C",
+        account: "5678901234"
+      }
+    };
+
+    // Function to fetch exchange rate from API
+    async function fetchExchangeRate(targetCurrency) {
+      try {
+        const response = await fetch(`https://api.frankfurter.app/latest?from=USD`);
+        const data = await response.json();
+        const exchangeRate = data.rates[targetCurrency];
+        return exchangeRate;
+      } catch (error) {
+        console.error('Error fetching exchange rate:', error);
+        return null;
+      }
+    }
+
+    // Function to display vendor details
+    function displayVendorDetails(vendor) {
+      const vendorDetails = document.getElementById("vendorDetails");
+      const vendorName = document.getElementById("vendorName");
+      const vendorEmail = document.getElementById("vendorEmail");
+      const vendorBank = document.getElementById("vendorBank");
+      const vendorAccount = document.getElementById("vendorAccount");
+
+      vendorName.textContent = vendor.name;
+      vendorEmail.textContent = vendor.email;
+      vendorBank.textContent = vendor.bank;
+      vendorAccount.textContent = vendor.account;
+
+      vendorDetails.style.display = "block";
+    }
+
+    // Function to display conversion details
+    function displayConversionDetails(exchangeRate, invoiceAmount, usdAmount, transactionFee, totalPayment) {
+      const conversionDetails = document.getElementById("conversionDetails");
+      const exchangeRateElement = document.getElementById("exchangeRate");
+      const invoiceAmountElement = document.getElementById("invoiceAmountDisplay");
+      const usdAmountElement = document.getElementById("usdAmount");
+      const transactionFeeElement = document.getElementById("transactionFee");
+      const totalPaymentElement = document.getElementById("totalPayment");
+
+      exchangeRateElement.textContent = exchangeRate ? exchangeRate.toFixed(4) : 'N/A';
+      invoiceAmountElement.textContent = '$' + invoiceAmount.toFixed(2);
+      usdAmountElement.textContent = '$' + usdAmount.toFixed(2);
+      transactionFeeElement.textContent = '$' + transactionFee.toFixed(2);
+      totalPaymentElement.textContent = '$' + totalPayment.toFixed(2);
+
+      conversionDetails.style.display = "block";
+      document.getElementById("confirmPayment").style.display = "block";
+    }
+
+    // Event listener for vendor selection
+    document.getElementById("vendorSelect").addEventListener("change", function() {
+      const selectedVendor = this.value;
+      if (selectedVendor) {
+        displayVendorDetails(vendors[selectedVendor]);
+      } else {
+        document.getElementById("vendorDetails").style.display = "none";
+      }
+    });
+
+    // Event listener for convert button
+    document.getElementById("convertBtn").addEventListener("click", async function() {
+      const invoiceAmount = parseFloat(document.getElementById("invoiceAmount").value);
+      const targetCurrency = document.getElementById("targetCurrency").value;
+
+      if (isNaN(invoiceAmount) || invoiceAmount <= 0) {
+        alert("Please enter a valid invoice amount.");
+        return;
+      }
+
+      if (targetCurrency === "USD") {
+        const transactionFeePercentage = 0.001; // 10 bps = 0.1%
+        const transactionFee = invoiceAmount * transactionFeePercentage;
+        const totalPayment = invoiceAmount + transactionFee;
+
+        displayConversionDetails(null, invoiceAmount, invoiceAmount, transactionFee, totalPayment);
+      } else {
+        const exchangeRate = await fetchExchangeRate(targetCurrency);
+        if (exchangeRate === null) {
+          alert("Failed to fetch exchange rate. Please try again later.");
+          return;
+        }
+
+        const usdAmount = invoiceAmount / exchangeRate;
+        const transactionFeePercentage = 0.001; // 10 bps = 0.1%
+        const transactionFee = usdAmount * transactionFeePercentage;
+        const totalPayment = usdAmount + transactionFee;
+
+        displayConversionDetails(exchangeRate, invoiceAmount, usdAmount, transactionFee, totalPayment);
+      }
+    });
+
+    // Load and play the Lottie animation
+    const animationContainer = document.getElementById('animationContainer');
+    const animation = lottie.loadAnimation({
+      container: animationContainer,
+      renderer: 'svg',
+      loop: false,
+      autoplay: false,
+      path: 'https://assets-global.website-files.com/648b30d5e0080c049208ed4a/6495b7258923661cde83063e_workflow%20animation%20Purple%20BG.json'
+    });
+
+    // Function to play the animation
+    function playAnimation() {
+      animation.goToAndPlay(0);
+    }
+
+    // Event listener for confirm payment button
+    document.getElementById("confirmPayment").addEventListener("click", function() {
+      playAnimation();
+    });
+  </script>
+</body>
+</html>
